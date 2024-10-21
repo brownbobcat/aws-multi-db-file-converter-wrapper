@@ -1,0 +1,7 @@
+flask
+pandas
+pymysql
+boto3
+pymongo
+dnspython
+gremlin-python

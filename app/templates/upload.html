@@ -1,0 +1,114 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Multi-DB Data Migration Tool</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            line-height: 1.6;
+            padding: 20px;
+        }
+
+        h1 {
+            color: #333;
+        }
+
+        form {
+            margin-bottom: 20px;
+        }
+
+        input,
+        select,
+        button {
+            margin: 10px 0;
+            padding: 5px;
+        }
+
+        #result {
+            background: #f4f4f4;
+            padding: 10px;
+            border-radius: 5px;
+        }
+
+        .flash-messages {
+            color: #721c24;
+            background-color: #f8d7da;
+            border: 1px solid #f5c6cb;
+            padding: 10px;
+            margin-bottom: 15px;
+            border-radius: 5px;
+        }
+    </style>
+</head>
+
+<body>
+    <h1>Multi-DB Data Migration Tool</h1>
+
+    {% with messages = get_flashed_messages() %}
+    {% if messages %}
+    <div class="flash-messages">
+        {% for message in messages %}
+        <p>{{ message }}</p>
+        {% endfor %}
+    </div>
+    {% endif %}
+    {% endwith %}
+
+    <form id="upload-form" action="{{ url_for('upload') }}" method="POST" enctype="multipart/form-data">
+        <div>
+            <label for="file">Select file (CSV, TXT, JSON, XML):</label>
+            <input type="file" id="file" name="file" accept=".csv,.txt,.json,.xml" required>
+        </div>
+        <div>
+            <label for="db_type">Select Database Type:</label>
+            <select id="db_type" name="db_type" required>
+                <option value="mysql">RDS MySQL</option>
+                <option value="dynamodb">DynamoDB</option>
+                <option value="documentdb">DocumentDB</option>
+                <option value="neptune">Neptune</option>
+            </select>
+        </div>
+        <div>
+            <label for="table_name">Table/Collection Name:</label>
+            <input type="text" id="table_name" name="table_name" required>
+        </div>
+        <button type="submit">Upload and Process</button>
+    </form>
+
+    <div id="result"></div>
+
+    <script>
+        document.getElementById('upload-form').addEventListener('submit', function (e) {
+            e.preventDefault();
+            var formData = new FormData(this);
+
+            fetch('{{ url_for("upload") }}', {
+                method: 'POST',
+                body: formData
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data && !data.error) {
+                    document.getElementById('result').innerHTML = `
+                        <p>File successfully uploaded and processed</p>
+                        <p>Database: ${data.db_type}</p>
+                        <p>Table/Collection: ${data.table_name}</p>
+                        <p>Rows processed: ${data.rows_processed}</p>
+                    `;
+                } else {
+                    document.getElementById('result').innerHTML = `<p style="color: red;">Error: ${data.error}</p>`;
+                }
+            })
+            .catch(error => {
+                console.error('Error:', error);
+                document.getElementById('result').innerHTML = `<p style="color: red;">An error occurred: ${error.message}. Please try again.</p>`;
+            });
+        });
+    </script>
+</body>
+
+</html>
+
