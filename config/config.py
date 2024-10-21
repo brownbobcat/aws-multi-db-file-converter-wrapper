@@ -1,20 +1,27 @@
+import os
+from dotenv import load_dotenv
+
+# Load environment variables from .env file if it exists
+load_dotenv()
+
 def get_db_config(db_type):
     if db_type == 'mysql':
         return {
-            'host': 'database-2.c1m2gemc8uom.us-east-1.rds.amazonaws.com',
-            'user': 'admin',
-            'password': 'nirmitdb',
-            'database': 'database-2'
+            'host': os.getenv('MYSQL_HOST'),
+            'user': os.getenv('MYSQL_USER'),
+            'password': os.getenv('MYSQL_PASSWORD'),
+            'database': os.getenv('MYSQL_DATABASE')
         }
     elif db_type == 'dynamodb':
         return {}  # DynamoDB does not require additional config if using default
     elif db_type == 'neptune':
-        return {'neptune_endpoint': 'db-neptune.cluster-c1m2gemc8uom.us-east-1.neptune.amazonaws.com'}
+        return {'neptune_endpoint': os.getenv('NEPTUNE_ENDPOINT')}
     elif db_type == 'documentdb':
         return {
-            'uri': 'mongodb://root:rootroot77@Database-2-577638360912.us-east-1.docdb-elastic.amazonaws.com:27017/?ssl=true',
-            'database': 'Database-2'
+            'uri': os.getenv('DOCUMENTDB_URI'),
+            'database': os.getenv('DOCUMENTDB_DATABASE')
         }
     else:
         raise ValueError("Unsupported DB type")
-
+    
+    
